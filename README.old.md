@@ -1,1 +1,1 @@
-# goit-react-hw-02-bank-account
+# goit-react-hw-01-components

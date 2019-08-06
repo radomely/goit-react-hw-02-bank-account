@@ -13,29 +13,6 @@ const transactionAlert = {
   success: 'Операция произведена успешно!',
 };
 
-const calculateBalance = transactions => {
-  const deposits = transactions.filter(
-    transaction => transaction.type === 'deposit',
-  );
-  const sumDeposits = deposits.reduce(
-    (sum, deposit) => sum + deposit.amount,
-    0,
-  );
-  const withdrawals = transactions.filter(
-    transaction => transaction.type === 'withdrawal',
-  );
-  const sumWithdrawals = withdrawals.reduce(
-    (sum, withdrawal) => sum + withdrawal.amount,
-    0,
-  );
-
-  return {
-    balance: sumDeposits - sumWithdrawals,
-    deposit: sumDeposits,
-    withdrawal: sumWithdrawals,
-  };
-};
-
 export default class Dashboard extends Component {
   state = {
     inputValue: '',
@@ -44,21 +21,6 @@ export default class Dashboard extends Component {
     deposit: 0,
     withdrawal: 0,
   };
-
-  componentDidMount() {
-    if (localStorage.getItem('transactions')) {
-      const transactions = JSON.parse(localStorage.getItem('transactions'));
-      this.setState({ transactions, ...calculateBalance(transactions) });
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const { transactions } = this.state;
-    if (prevState.transactions !== transactions) {
-      this.setState({ ...calculateBalance(transactions) });
-      localStorage.setItem('transactions', JSON.stringify(transactions));
-    }
-  }
 
   handleGetValue = e => {
     this.setState({ inputValue: e.target.value });
@@ -76,6 +38,8 @@ export default class Dashboard extends Component {
       };
       this.setState(state => ({
         transactions: [...state.transactions, transaction],
+        deposit: state.deposit + coinsValue,
+        balance: state.balance + coinsValue,
       }));
       this.resetInput();
       toast.success(transactionAlert.success);
@@ -98,6 +62,8 @@ export default class Dashboard extends Component {
       };
       this.setState(state => ({
         transactions: [...state.transactions, transaction],
+        withdrawal: state.withdrawal + coinsValue,
+        balance: state.balance - coinsValue,
       }));
       this.resetInput();
       toast.success(transactionAlert.success);
